@@ -1,0 +1,33 @@
+
+
+name: Auto Post to Blogger
+on:
+  schedule:
+    - cron: "0 * * * *"  # Every hour at minute 0
+  workflow_dispatch:
+
+jobs:
+  post-articles:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Setup credentials
+      env:
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        TOKEN: ${{ secrets.TOKEN }}
+      run: |
+        echo "$CLIENT_SECRET" | base64 --decode > client_secret.json
+        echo "$TOKEN" | base64 --decode > token.json
+
+    - name: Run Auto Poster
+      run: python guardian_blogger.py
